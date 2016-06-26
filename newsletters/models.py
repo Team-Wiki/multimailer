@@ -108,7 +108,7 @@ class Message(models.Model):
     user_agent = models.TextField(blank=True,null=True)
 
     def preproc_text(self, txt):
-        return (txt.replace('*|SUBSCRIBER_ID|*', self.subscription_id)
+        return (txt.replace('*|SUBSCRIBER_ID|*', str(self.subscription_id))
                    .replace('*|SUBSCRIBER_NAME|*', self.subscription.subscriber.name)
                    .replace('*|SUBSCRIBER_EMAIL|*', self.subscription.subscriber.email_address)
                    .replace('*|MESSAGE_TOKEN|*', self.bounce_token.hex)
