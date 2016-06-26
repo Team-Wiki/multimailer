@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -8,7 +10,7 @@ from django.shortcuts import render
 from django.views.generic.base import View
 from newsletters import tasks
 from newsletters.forms import CreateDraftForm
-from newsletters.models import PlaintextDraft, Edition
+from newsletters.models import PlaintextDraft, Edition, Subscription, Message, Newsletter
 
 
 @login_required
@@ -26,6 +28,22 @@ def create_draft(request):
         form = CreateDraftForm(session_user=request.user)
 
     return render(request, 'newsletters/draft_create.html', {'form': form})
+
+
+
+def list_unsubscribe(request, token):
+    tok = UUID(token)
+    msg = Message.objects.get(bounce_token=tok)
+    subscription = msg.subscription
+    if request.method == 'POST':
+        return render(request, 'newsletters/unsubscribe_ack.html', {'newsletter': subscription.newsletter})
+    else:
+        return render(request, 'newsletters/unsubscribe_form.html', {'subscription': subscription, 'token': msg.bounce_token.hex})
+
+
+def list_info(request, id):
+    nl = Newsletter.objects.get(id=id)
+    return render(request, 'newsletters/list_info.html', {'newsletter': nl})
 
 
 class PlaintextDraftEditor(View):
