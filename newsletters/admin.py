@@ -6,14 +6,17 @@ from newsletters.models import PlaintextDraft, Shortlink, Newsletter, Edition, M
 
 @admin.register(Newsletter)
 class NewsletterAdmin(admin.ModelAdmin):
+    list_display = ['name']
     pass
 
 @admin.register(PlaintextDraft)
 class PlaintextDraftAdmin(admin.ModelAdmin):
+    list_display = ['internal_name']
     pass
 
 @admin.register(Edition)
 class EditionAdmin(admin.ModelAdmin):
+    list_display = ['internal_name']
     pass
 
 @admin.register(Shortlink)

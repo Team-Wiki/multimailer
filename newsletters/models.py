@@ -16,6 +16,8 @@ class Newsletter(models.Model):
     default_html_template = models.CharField(max_length=50, blank=True, null=True)
     plain_footer = models.TextField(blank=True)
     html_footer = models.TextField(blank=True)
+    def __str__(self):
+        return self.name
 
 class PlaintextDraft(models.Model):
     newsletter = models.ForeignKey("Newsletter")
@@ -47,6 +49,8 @@ class PlaintextDraft(models.Model):
                 'draft': self,
             })
         return ed
+    def __str__(self):
+        return self.internal_name + ' (Entwurf) - ' + self.newsletter.name
 
 
 class Edition(models.Model):
@@ -55,6 +59,8 @@ class Edition(models.Model):
     mail_subject = models.CharField(max_length=255)
     mail_html_body = models.TextField(blank=True,null=True)
     mail_plain_body = models.TextField()
+    def __str__(self):
+        return self.internal_name + ' - ' + self.newsletter.name
 
 def gen_shortlink_token():
     return helper.random_token(7)
@@ -69,6 +75,8 @@ class Shortlink(models.Model):
 class Subscriber(models.Model):
     name = models.CharField(max_length=80)
     email_address = models.EmailField()
+    def __str__(self):
+        return self.name + ' <' + self.email_address + '>'
 
 class Subscription(models.Model):
     SUBSCRIPTION_STATES = (

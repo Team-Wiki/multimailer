@@ -1,10 +1,31 @@
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http.response import JsonResponse
+from django.core.urlresolvers import reverse
+from django.http.response import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
 from django.views.generic.base import View
-from newsletters.models import PlaintextDraft
+from newsletters import tasks
+from newsletters.forms import CreateDraftForm
+from newsletters.models import PlaintextDraft, Edition
+
+
+@login_required
+def create_draft(request):
+    if request.method == 'POST':
+        form = CreateDraftForm(session_user=request.user, data=request.POST)
+        if form.is_valid():
+            cb = PlaintextDraft(newsletter = form.cleaned_data['newsletter'],
+                                internal_name= form.cleaned_data['internal_name'])
+
+            cb.save()
+
+            return HttpResponseRedirect(reverse('newsletters:draft_edit', args=[cb.id]))
+    else:
+        form = CreateDraftForm(session_user=request.user)
+
+    return render(request, 'newsletters/draft_create.html', {'form': form})
 
 
 class PlaintextDraftEditor(View):
@@ -37,6 +58,28 @@ class PlaintextDraftEditor(View):
             ed.save()
             response['success'] = True
             response['edition_id'] = ed.id
+            response['edition_url'] = reverse('newsletters:edition', args=[ed.id])
+
+        return JsonResponse(response)
+
+
+
+class EditionView(View):
+    def get(self, request, edition_id, *args, **kwargs):
+        if not request.user.has_perm('newsletters.change_plaintextdraft'): raise PermissionDenied
+        edition = Edition.objects.get(id=edition_id)
+        return render(request, "newsletters/edition_view.html",
+                      {'edition': edition, })
+
+    def post(self, request, edition_id, *args, **kwargs):
+        if not request.user.has_perm('newsletters.change_plaintextdraft'): raise PermissionDenied
+        edition = Edition.objects.get(id=edition_id)
+
+        response = {}
+
+        if 'start_sending' in request.POST:
+            tasks.deliver_newsletter.delay(edition.id)
+            response['success'] = True
 
         return JsonResponse(response)
 
