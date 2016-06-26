@@ -31,7 +31,7 @@ class MessageAdmin(admin.ModelAdmin):
     list_display_links = ['newsletter_name', 'edition_name', 'subscriber_str',]
     list_filter = ['edition',]
     def newsletter_name(self, obj):
-        return obj.edition.newsletter.internal_name
+        return obj.edition.newsletter.name
     newsletter_name.short_description = "Newsletter"
     def edition_name(self, obj):
         return obj.edition.internal_name
