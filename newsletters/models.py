@@ -125,9 +125,9 @@ class Message(models.Model):
             msg = mPlain
         msg['To'] = email.utils.formataddr((self.subscription.subscriber.name,
                                             self.subscription.subscriber.email_address))
-        msg['From'] = email.utils.formataddr((msg.subscription.newsletter.from_name,
-                                              msg.subscription.newsletter.from_email_address))
-        msg['Subject'] = msg.edition.mail_subject
+        msg['From'] = email.utils.formataddr((self.subscription.newsletter.from_name,
+                                              self.subscription.newsletter.from_email_address))
+        msg['Subject'] = self.edition.mail_subject
         msg['List-Unsubscribe'] = reverse('unsubscribe_link', args=(self.bounce_token.hex,))
         msg['List-Help'] = reverse('list_info', args=(self.bounce_token.hex,))
         msg['List-Subscribe'] = reverse('list_info', args=(self.bounce_token.hex,))
