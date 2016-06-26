@@ -12,6 +12,7 @@ class Newsletter(models.Model):
     name = models.CharField(max_length=50)
     from_name = models.CharField(max_length=50)
     from_email_address = models.EmailField(max_length=50)
+    default_plain_template = models.CharField(max_length=50, blank=True, null=True)
     default_html_template = models.CharField(max_length=50, blank=True, null=True)
     plain_footer = models.TextField(blank=True)
     html_footer = models.TextField(blank=True)
@@ -20,7 +21,9 @@ class PlaintextDraft(models.Model):
     newsletter = models.ForeignKey("Newsletter")
     internal_name = models.CharField(max_length=100)
     mail_subject = models.CharField(max_length=255)
+    mail_plain_abstract = models.TextField()
     mail_plain_body = models.TextField()
+    plain_template = models.CharField(max_length=50, blank=True, null=True)
     html_template = models.CharField(max_length=50, blank=True, null=True)
 
     def build_edition(self):
@@ -28,10 +31,20 @@ class PlaintextDraft(models.Model):
         ed.newsletter = self.newsletter
         ed.internal_name = self.internal_name
         ed.mail_subject = self.mail_subject
-        ed.mail_plain_body = self.mail_plain_body + "\r\n-- \r\n" + self.plain_footer
+
+        plain_tpl = 'newsletters/default_plain.txt'
+        if self.plain_template: plain_tpl = 'custom_plain/' + self.plain_template + '.txt'
+
+        ed.mail_plain_body = render_to_string(plain_tpl, context={
+            'newsletter': self.newsletter,
+            'draft': self,
+        })
+
         if self.html_template:
-            ed.mail_html_body = render_to_string(self.html_template, context={
+            html_tpl = 'custom_html/' + self.html_template + '.html'
+            ed.mail_html_body = render_to_string(html_tpl, context={
                 'newsletter': self.newsletter,
+                'draft': self,
             })
         return ed
 

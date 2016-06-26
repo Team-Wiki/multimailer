@@ -1,0 +1,21 @@
+
+<textarea id="plain_abstract" style="width:100%;height:200px;">{{ draft.mail_plain_abstract }}</textarea>
+
+<textarea id="plain_body" style="width:100%;height:500px;">{{ draft.mail_plain_body }}</textarea>
+
+<button id="preview">Preview</button>
+<button id="create">Create</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+<script>
+    var draftId = {{ draft.id }};
+    $("#create").click(function(){
+        $.post("/admin/newsletter-editor/draft/"+draftId, {
+            create_edition: "true"
+        }, function(result) {
+            console.log(result);
+        });
+    });
+
+</script>

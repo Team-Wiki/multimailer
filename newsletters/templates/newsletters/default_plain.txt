@@ -1,0 +1,4 @@
+{{ draft.mail_plain_body }}
+{{ draft.mail_plain_abstract }}
+--
+{{ newsletter.plain_footer }}
