@@ -114,6 +114,8 @@ class Message(models.Model):
                    .replace('*|MESSAGE_TOKEN|*', self.bounce_token.hex)
                    .replace('*|SUBSCRIBE_DATE|*', self.subscription.confirmed.strftime('%d.%m.%Y'))
                    .replace('*|TODAY|*', datetime.now().strftime('%d.%m.%Y'))
+                   .replace('*|CHANGE_LINK|*', reverse('newsletters:list_change_subscription', args=(self.bounce_token.hex,)))
+                   .replace('*|UNSUBSCRIBE_LINK|*', reverse('newsletters:list_unsubscribe', args=(self.bounce_token.hex,)))
                 )
 
     def get_mime_message(self):

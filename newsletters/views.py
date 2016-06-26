@@ -9,7 +9,7 @@ from django.shortcuts import render
 # Create your views here.
 from django.views.generic.base import View
 from newsletters import tasks
-from newsletters.forms import CreateDraftForm
+from newsletters.forms import CreateDraftForm, ChangeSubscriptionForm
 from newsletters.models import PlaintextDraft, Edition, Subscription, Message, Newsletter
 
 
@@ -36,9 +36,31 @@ def list_unsubscribe(request, token):
     msg = Message.objects.get(bounce_token=tok)
     subscription = msg.subscription
     if request.method == 'POST':
+        subscription.state = 'U'
+        subscription.save()
         return render(request, 'newsletters/unsubscribe_ack.html', {'newsletter': subscription.newsletter})
     else:
         return render(request, 'newsletters/unsubscribe_form.html', {'subscription': subscription, 'token': msg.bounce_token.hex})
+
+def list_change_subscription(request, token):
+    tok = UUID(token)
+    msg = Message.objects.get(bounce_token=tok)
+    subscription = msg.subscription
+
+    saved = False
+    if request.method == 'POST':
+        form = ChangeSubscriptionForm(data=request.POST)
+        if form.is_valid():
+            subscription.subscriber.name = form.cleaned_data['name']
+            subscription.subscriber.email_address = form.cleaned_data['email_address']
+            subscription.subscriber.save()
+            saved = True
+    else:
+        form = ChangeSubscriptionForm()
+
+    return render(request, 'newsletters/change_subscription.html', {'form': form,
+                                                                    'token': msg.bounce_token.hex,
+                                                                    'saved': saved})
 
 
 def list_info(request, id):
