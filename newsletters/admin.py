@@ -27,8 +27,18 @@ class ShortlinkAdmin(admin.ModelAdmin):
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ['subscription', 'edition', 'enqueued', 'bounced', 'viewed', 'user_agent',]
+    list_display = ['newsletter_name', 'edition_name', 'subscriber_str', 'enqueued', 'bounced', 'viewed', 'user_agent',]
+    list_display_links = ['newsletter_name', 'edition_name', 'subscriber_str',]
     list_filter = ['edition',]
+    def newsletter_name(self, obj):
+        return obj.edition.newsletter.internal_name
+    newsletter_name.short_description = "Newsletter"
+    def edition_name(self, obj):
+        return obj.edition.internal_name
+    edition_name.short_description = "Ausgabe"
+    def subscriber_str(self, obj):
+        return str(obj.subscription.subscriber)
+    subscriber_str.short_description = "Abonnent"
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
