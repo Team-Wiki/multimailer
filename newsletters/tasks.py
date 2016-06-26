@@ -10,7 +10,8 @@ def deliver_newsletter(edition_id):
     ed = Edition.objects.get(id=edition_id)
     subscriptions = ed.newsletter.subscription_set.filter(state='+')
     for sub in subscriptions:
-        msg = Message.objects.create(subscription=sub)
+        msg = Message.objects.create(subscription=sub,
+                                     edition=ed)
         send_mail.delay(message_id=msg.id)
 
 
