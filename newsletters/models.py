@@ -118,11 +118,11 @@ class Message(models.Model):
 
     def get_mime_message(self):
         mPlain = MIMEText(self.preproc_text(self.edition.mail_plain_body), 'plain', 'utf-8')
-        if self.edition.mail_html_body == "":
-            msg = mPlain
-        else:
-            mHTML = MIMEText(self.prepare_database_save(self.edition.mail_html_body), 'html', 'utf-8')
+        if self.edition.mail_html_body:
+            mHTML = MIMEText(self.preproc_text(self.edition.mail_html_body), 'html', 'utf-8')
             msg = MIMEMultipart('alternative', None, [mPlain, mHTML])
+        else:
+            msg = mPlain
         msg['To'] = email.utils.formataddr((self.subscription.subscriber.name,
                                             self.subscription.subscriber.email_address))
         msg['From'] = email.utils.formataddr((msg.subscription.newsletter.from_name,
