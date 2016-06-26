@@ -1,0 +1,23 @@
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="/static/newsletters/helper.js"></script>
+
+
+
+<h2>{{ edition.internal_name }}</h2>
+<p>Mail Subject: {{ edition.mail_subject }}</p>
+<p><a href="{% url 'admin:newsletters_edition_change' edition.id %}">Edit</a></p>
+
+<p><button id="start_send">Send to subscribers</button></p>
+
+<script>
+    var editionId = {{ edition.id }};
+    $("#start_send").click(function() {
+        $.post("/admin/newsletter-editor/edition/"+editionId+"/", {
+            start_sending: "true"
+        }, function(result) {
+            console.log(result);
+        })
+    })
+</script>
+

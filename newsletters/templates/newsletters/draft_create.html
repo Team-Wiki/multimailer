@@ -1,0 +1,8 @@
+
+    <h2>Create Draft</h2>
+    <form action="{% url 'newsletters:draft_create' %}" method="post" class="ui form">
+    {% csrf_token %}
+    {{ form }}
+
+  <button class="ui button" type="submit">Submit</button>
+    </form>
