@@ -32,12 +32,12 @@ class MessageAdmin(admin.ModelAdmin):
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ['subscription', 'newsletter', 'state', 'created', 'confirmed']
+    list_display = ['subscriber', 'newsletter', 'state', 'created', 'confirmed']
     list_filter = ['newsletter',]
 
 @admin.register(Subscriber)
 class SubscriberAdmin(admin.ModelAdmin):
     list_display = ['name', 'email_address']
-    
+
 
 
