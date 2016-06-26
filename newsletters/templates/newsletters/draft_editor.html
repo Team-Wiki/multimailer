@@ -11,7 +11,7 @@
 <script>
     var draftId = {{ draft.id }};
     $("#create").click(function(){
-        $.post("/admin/newsletter-editor/draft/"+draftId, {
+        $.post("/admin/newsletter-editor/draft/"+draftId+"/", {
             create_edition: "true"
         }, function(result) {
             console.log(result);
