@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from newsletters.models import PlaintextDraft, Shortlink, Newsletter, Edition, Message
+from newsletters.models import PlaintextDraft, Shortlink, Newsletter, Edition, Message, Subscriber, Subscription
 
 
 @admin.register(Newsletter)
@@ -21,9 +21,23 @@ class EditionAdmin(admin.ModelAdmin):
 
 @admin.register(Shortlink)
 class ShortlinkAdmin(admin.ModelAdmin):
+    list_display = ['edition', 'token', 'target_url',]
+    list_filter = ['edition',]
     pass
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['subscription', 'edition', 'enqueued', 'bounced', 'viewed', 'user_agent',]
+    list_filter = ['edition',]
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = ['subscription', 'newsletter', 'state', 'created', 'confirmed']
+    list_filter = ['newsletter',]
+
+@admin.register(Subscriber)
+class SubscriberAdmin(admin.ModelAdmin):
+    list_display = ['name', 'email_address']
+    
+
 
