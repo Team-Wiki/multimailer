@@ -128,9 +128,9 @@ class Message(models.Model):
         msg['From'] = email.utils.formataddr((self.subscription.newsletter.from_name,
                                               self.subscription.newsletter.from_email_address))
         msg['Subject'] = self.edition.mail_subject
-        msg['List-Unsubscribe'] = reverse('list_unsubscribe', args=(self.bounce_token.hex,))
-        msg['List-Help'] = reverse('list_info', args=(self.bounce_token.hex,))
-        msg['List-Subscribe'] = reverse('list_info', args=(self.bounce_token.hex,))
+        msg['List-Unsubscribe'] = reverse('newsletters:list_unsubscribe', args=(self.bounce_token.hex,))
+        msg['List-Help'] = reverse('newsletters:list_info', args=(self.bounce_token.hex,))
+        msg['List-Subscribe'] = reverse('newsletters:list_info', args=(self.bounce_token.hex,))
         msg['X-Mailer'] = 'MultiMailer'
         msg['Content-Language'] = 'de'
 
