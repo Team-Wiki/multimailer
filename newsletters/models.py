@@ -93,7 +93,7 @@ class Subscription(models.Model):
     updated = models.DateTimeField(auto_now=True)
     confirmed = models.DateTimeField(blank=True,null=True)
     def __str__(self):
-        return str(self.subscriber) + ' at ' + str(self.newsletter)
+        return str(self.state) + '|' + str(self.newsletter) + '|' + str(self.subscriber)
 
 import email.utils
 from email.mime.text import MIMEText
