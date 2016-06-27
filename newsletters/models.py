@@ -92,6 +92,8 @@ class Subscription(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     confirmed = models.DateTimeField(blank=True,null=True)
+    def __str__(self):
+        return str(self.subscriber) + ' at ' + str(self.newsletter)
 
 import email.utils
 from email.mime.text import MIMEText
@@ -135,7 +137,7 @@ class Message(models.Model):
         msg['Subject'] = self.edition.mail_subject
         list_info_url = settings.URL_PREFIX + reverse('newsletters:list_info', args=(self.subscription.newsletter_id,))
         list_unsubscribe_url = settings.URL_PREFIX + reverse('newsletters:list_unsubscribe', args=(self.bounce_token.hex,))
-        msg['List-Id'] = "<"+list_info_url+">"
+        msg['List-Id'] = msg['From']
         msg['List-Unsubscribe'] = "<"+list_unsubscribe_url+">"
         msg['List-Help'] = "<"+list_info_url+">"
         msg['List-Subscribe'] = "<"+list_info_url+">"
