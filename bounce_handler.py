@@ -35,7 +35,7 @@ class CustomSMTPServer(smtpd.SMTPServer):
             local_parts = rcpt_addr[0].split('-')
             guid = UUID(local_parts[1])
             msg = Message.objects.get(bounce_token=guid)
-            msg.bounced = datetime.now()
+            msg.bounced = datetime.datetime.now()
             msg.bounce_message = peer + "\n" + mailfrom + "\n" + data
             msg.save()
             msg.subscription.state = 'B'
