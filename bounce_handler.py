@@ -30,9 +30,10 @@ class CustomSMTPServer(smtpd.SMTPServer):
         print ('Message addressed to  :', rcpttos)
         print ('Message length        :', len(data))
         try:
-            local, domain = '@'.split(rcpttos[0])
-            _, guid_hex = '-'.split(local)
-            guid = UUID(guid_hex)
+            rcpt_addr = '@'.split(rcpttos[0])
+            print(rcpt_addr)
+            local_parts = '-'.split(rcpt_addr[0])
+            guid = UUID(local_parts[1])
             msg = Message.objects.get(bounce_token=guid)
             msg.bounced = datetime.now()
             msg.bounce_message = peer + "\n" + mailfrom + "\n" + data
