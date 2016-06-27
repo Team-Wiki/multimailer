@@ -49,14 +49,12 @@ def list_change_subscription(request, token):
 
     saved = False
     if request.method == 'POST':
-        form = ChangeSubscriptionForm(data=request.POST)
+        form = ChangeSubscriptionForm(instance=subscription.subscriber, data=request.POST)
         if form.is_valid():
-            subscription.subscriber.name = form.cleaned_data['name']
-            subscription.subscriber.email_address = form.cleaned_data['email_address']
-            subscription.subscriber.save()
+            form.save()
             saved = True
     else:
-        form = ChangeSubscriptionForm(data=subscription.subscriber)
+        form = ChangeSubscriptionForm(instance=subscription.subscriber)
 
     return render(request, 'newsletters/change_subscription.html', {'form': form,
                                                                     'token': msg.bounce_token.hex,
