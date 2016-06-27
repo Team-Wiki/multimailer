@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 from uuid import UUID
 
 from django.contrib.auth.decorators import login_required
@@ -89,7 +90,7 @@ class ImportSubscribers(View):
             out += '<li>Email "' + line[3] + '" ...'
             try:
                 s, created = Subscriber.objects.get_or_create(name=line[4], email_address=line[3])
-                su, created = Subscription.objects.get_or_create(subscriber=s, newsletter=nl,)
+                su, created = Subscription.objects.get_or_create(subscriber=s, newsletter=nl, confirmed=datetime.now())
                 su.state = '+'
                 su.save()
                 out += "ok"
