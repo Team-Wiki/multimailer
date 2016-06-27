@@ -1,0 +1,12 @@
+{% extends 'admin/base_site.html' %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<h3>{{ title|default:'Oplan' }}</h3>
+<div class="toolbar">
+{% block toolbar %}{%endblock%}
+</div>
+</div>
+{% endblock %}
+
+{%block content_title%}
+{% endblock %}

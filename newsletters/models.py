@@ -74,7 +74,7 @@ class Shortlink(models.Model):
 
 class Subscriber(models.Model):
     name = models.CharField(max_length=80)
-    email_address = models.EmailField()
+    email_address = models.EmailField(unique=True)
     def __str__(self):
         return self.name + ' <' + self.email_address + '>'
 

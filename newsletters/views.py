@@ -1,8 +1,10 @@
+import csv
 from uuid import UUID
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.db.utils import IntegrityError
 from django.http.response import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
 
@@ -10,7 +12,7 @@ from django.shortcuts import render
 from django.views.generic.base import View
 from newsletters import tasks
 from newsletters.forms import CreateDraftForm, ChangeSubscriptionForm
-from newsletters.models import PlaintextDraft, Edition, Subscription, Message, Newsletter
+from newsletters.models import PlaintextDraft, Edition, Subscription, Message, Newsletter, Subscriber
 
 
 @login_required
@@ -64,6 +66,37 @@ def list_change_subscription(request, token):
 def list_info(request, id):
     nl = Newsletter.objects.get(id=id)
     return render(request, 'newsletters/list_info.html', {'newsletter': nl})
+
+
+class ImportSubscribers(View):
+    def get(self, request, newsletter_id, *args, **kwargs):
+        if not request.user.has_perm('newsletters.add_subscription'): raise PermissionDenied
+        foo = ""
+        return render(request, "newsletters/import_view.html",
+                      {'title': 'Abonnenten importieren', 'output': ''})
+
+    def post(self, request, newsletter_id, *args, **kwargs):
+        if not request.user.has_perm('newsletters.add_subscription'): raise PermissionDenied
+
+        nl = Newsletter.objects.get(id=newsletter_id)
+
+        the_csv = request.POST["content"]
+        reader = csv.reader(the_csv.splitlines(), delimiter='\t')
+
+        out = ""
+        for line in reader:
+            if len(line) < 5: continue
+            out += '<li>Email "' + line[3] + '" ...'
+            try:
+                s, created = Subscriber.objects.get_or_create(name=line[4], email_address=line[3])
+                su, created = Subscription.objects.get_or_create(subscriber=s, newsletter=nl,)
+                su.state = '+'
+                su.save()
+                out += "ok"
+            except IntegrityError as ex:
+                out += str(ex)
+
+        return render(request, "newsletters/import_view.html", {'title': 'Erfolg', 'output': out})
 
 
 class PlaintextDraftEditor(View):
