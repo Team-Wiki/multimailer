@@ -6,7 +6,7 @@ from django.db import models
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from newsletters import helper
-
+from django.conf import settings
 
 class Newsletter(models.Model):
     name = models.CharField(max_length=50)
@@ -108,14 +108,17 @@ class Message(models.Model):
     user_agent = models.TextField(blank=True,null=True)
 
     def preproc_text(self, txt):
+        list_info_url = settings.URL_PREFIX + reverse('newsletters:list_info', args=(self.subscription.newsletter_id,))
+        list_unsubscribe_url = settings.URL_PREFIX + reverse('newsletters:list_unsubscribe', args=(self.bounce_token.hex,))
+        list_change_sub_url = settings.URL_PREFIX + reverse('newsletters:list_change_subscription', args=(self.bounce_token.hex,))
         return (txt.replace('*|SUBSCRIBER_ID|*', str(self.subscription_id))
                    .replace('*|SUBSCRIBER_NAME|*', self.subscription.subscriber.name)
                    .replace('*|SUBSCRIBER_EMAIL|*', self.subscription.subscriber.email_address)
                    .replace('*|MESSAGE_TOKEN|*', self.bounce_token.hex)
                    .replace('*|SUBSCRIBE_DATE|*', self.subscription.confirmed.strftime('%d.%m.%Y'))
                    .replace('*|TODAY|*', datetime.now().strftime('%d.%m.%Y'))
-                   .replace('*|CHANGE_LINK|*', reverse('newsletters:list_change_subscription', args=(self.bounce_token.hex,)))
-                   .replace('*|UNSUBSCRIBE_LINK|*', reverse('newsletters:list_unsubscribe', args=(self.bounce_token.hex,)))
+                   .replace('*|CHANGE_LINK|*', list_change_sub_url)
+                   .replace('*|UNSUBSCRIBE_LINK|*', list_unsubscribe_url)
                 )
 
     def get_mime_message(self):
@@ -130,9 +133,12 @@ class Message(models.Model):
         msg['From'] = email.utils.formataddr((self.subscription.newsletter.from_name,
                                               self.subscription.newsletter.from_email_address))
         msg['Subject'] = self.edition.mail_subject
-        msg['List-Unsubscribe'] = reverse('newsletters:list_unsubscribe', args=(self.bounce_token.hex,))
-        msg['List-Help'] = reverse('newsletters:list_info', args=(self.subscription.newsletter_id,))
-        msg['List-Subscribe'] = reverse('newsletters:list_info', args=(self.subscription.newsletter_id,))
+        list_info_url = settings.URL_PREFIX + reverse('newsletters:list_info', args=(self.subscription.newsletter_id,))
+        list_unsubscribe_url = settings.URL_PREFIX + reverse('newsletters:list_unsubscribe', args=(self.bounce_token.hex,))
+        msg['List-Id'] = "<"+list_info_url+">"
+        msg['List-Unsubscribe'] = "<"+list_unsubscribe_url+">"
+        msg['List-Help'] = "<"+list_info_url+">"
+        msg['List-Subscribe'] = "<"+list_info_url+">"
         msg['X-Mailer'] = 'MultiMailer'
         msg['Content-Language'] = 'de'
 
