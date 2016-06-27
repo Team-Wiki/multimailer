@@ -1,4 +1,4 @@
-<form action="{% url 'newsletters:list_unsubscribe' token %}">
+<form action="{% url 'newsletters:list_unsubscribe' token %}" method="post">
     {% csrf_token %}
     <input type="submit" name="unsubscribe" value="Unsubscribe">
 </form>

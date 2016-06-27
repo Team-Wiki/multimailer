@@ -56,7 +56,7 @@ def list_change_subscription(request, token):
             subscription.subscriber.save()
             saved = True
     else:
-        form = ChangeSubscriptionForm()
+        form = ChangeSubscriptionForm(data=subscription.subscriber)
 
     return render(request, 'newsletters/change_subscription.html', {'form': form,
                                                                     'token': msg.bounce_token.hex,
