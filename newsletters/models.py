@@ -134,6 +134,7 @@ class Message(models.Model):
                                             self.subscription.subscriber.email_address))
         msg['From'] = email.utils.formataddr((self.subscription.newsletter.from_name,
                                               self.subscription.newsletter.from_email_address))
+        msg['Reply-To'] = 'max.weller@ugb.de'
         msg['Subject'] = self.edition.mail_subject
         list_info_url = settings.URL_PREFIX + reverse('newsletters:list_info', args=(self.subscription.newsletter_id,))
         list_unsubscribe_url = settings.URL_PREFIX + reverse('newsletters:list_unsubscribe', args=(self.bounce_token.hex,))
