@@ -40,8 +40,9 @@ class CustomSMTPServer(smtpd.SMTPServer):
             msg.subscription.state = 'B'
             msg.subscription.save()
             print("OK, unsubscribed "+str(msg.subscription.subscriber))
-        except:
+        except BaseException as ex:
             print("Error while handling bounce")
+            print(ex)
         return
 
 server = CustomSMTPServer(('0.0.0.0', 25), None)
