@@ -1,0 +1,9 @@
+Hallo und Guten Tag *|SUBSCRIBER_NAME|*!
+Hier können Sie den Newsletter online lesen: *|READ_ONLINE_LINK|*
+
+{{ draft.mail_plain_abstract }}
+
+{{ draft.mail_plain_body }}
+--
+{{ newsletter.plain_footer }}
+

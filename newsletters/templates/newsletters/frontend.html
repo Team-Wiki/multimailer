@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Newsletter</title>
+    <link rel="stylesheet" href="{% static 'newsletters/css/bootstrap.min.css' %}">
+</head>
+<body>
+{% block pre_content %}
+{% endblock %}
+<div class="container">
+{% block content %}
+{% endblock %}
+</div>
+<script src="{% static '/static/newsletters/js/jquery.min.js' %}"></script>
+<script src="{% static '/static/newsletters/js/bootstrap.min.js' %}"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from newsletters.models import PlaintextDraft, Shortlink, Newsletter, Edition, Message, Subscriber, Subscription
+from newsletters.models import PlaintextDraft, Shortlink, Newsletter, Edition, Message, Subscription
 
 
 @admin.register(Newsletter)
@@ -37,17 +37,13 @@ class MessageAdmin(admin.ModelAdmin):
         return obj.edition.internal_name
     edition_name.short_description = "Ausgabe"
     def subscriber_str(self, obj):
-        return str(obj.subscription.subscriber)
+        return obj.subscription.email_address
     subscriber_str.short_description = "Abonnent"
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ['subscriber', 'newsletter', 'state', 'created', 'confirmed']
+    list_display = ['name', 'email_address', 'newsletter', 'state', 'created', 'confirmed']
     list_filter = ['newsletter',]
-
-@admin.register(Subscriber)
-class SubscriberAdmin(admin.ModelAdmin):
-    list_display = ['name', 'email_address']
 
 
 

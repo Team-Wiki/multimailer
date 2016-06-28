@@ -1,12 +1,13 @@
 {% extends 'admin/base_site.html' %}
+{% load i18n %}
+
 {% block breadcrumbs %}
-<div class="breadcrumbs">
-<h3>{{ title|default:'Oplan' }}</h3>
-<div class="toolbar">
-{% block toolbar %}{%endblock%}
-</div>
-</div>
+  <li><a href="{% url 'admin:index' %}"><i class="fa fa-dashboard"></i> {% trans 'Home' %}</a></li>
+  {% if newsletter %}
+    <li><a href="{% url 'nleditor:newsletter_dashboard' newsletter.id %}">{{ newsletter.name }}</a></li>
+  {% endif %}
+  {% if title %}
+    <li class="active">{{ title }}</li>
+  {% endif %}
 {% endblock %}
 
-{%block content_title%}
-{% endblock %}

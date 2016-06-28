@@ -2,9 +2,11 @@ import csv
 from datetime import datetime
 from uuid import UUID
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.db.models.query_utils import Q
 from django.db.utils import IntegrityError
 from django.http.response import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -12,26 +14,60 @@ from django.shortcuts import render
 # Create your views here.
 from django.views.generic.base import View
 from newsletters import tasks
-from newsletters.forms import CreateDraftForm, ChangeSubscriptionForm
-from newsletters.models import PlaintextDraft, Edition, Subscription, Message, Newsletter, Subscriber
+from newsletters.forms import CreateDraftForm, ChangeSubscriptionForm, SubscribeForm
+from newsletters.models import PlaintextDraft, Edition, Subscription, Message, Newsletter
 
+def newsletter_menu_cp(request):
+    if request.user and request.user.is_staff:
+        return {
+            'all_newsletters': Newsletter.objects.all()
+        }
+    else:
+        return {}
 
 @login_required
 def create_draft(request):
     if request.method == 'POST':
         form = CreateDraftForm(session_user=request.user, data=request.POST)
         if form.is_valid():
-            cb = PlaintextDraft(newsletter = form.cleaned_data['newsletter'],
-                                internal_name= form.cleaned_data['internal_name'])
-
-            cb.save()
-
-            return HttpResponseRedirect(reverse('newsletters:draft_edit', args=[cb.id]))
+            nl = form.cleaned_data['newsletter']
+            cb = PlaintextDraft.objects.create(newsletter = nl,
+                                 internal_name=form.cleaned_data['internal_name'],
+                                 mail_subject=form.cleaned_data['internal_name'],
+                                 plain_template=nl.default_plain_template,
+                                 html_template=nl.default_html_template,
+                                )
+            return HttpResponseRedirect(reverse('nleditor:draft_edit', args=[cb.id]))
     else:
-        form = CreateDraftForm(session_user=request.user)
+        initial = {}
+        if 'newsletter_id' in request.GET: initial['newsletter'] = Newsletter.objects.get(id=request.GET['newsletter_id'])
+        form = CreateDraftForm(session_user=request.user, initial=initial)
+
 
     return render(request, 'newsletters/draft_create.html', {'form': form})
 
+
+
+def index_page(request):
+    newsletters = Newsletter.objects.all()
+    return render(request, 'newsletters/index.html', {'newsletters': newsletters})
+
+
+def dashboard(request, newsletter_id):
+    nl = Newsletter.objects.get(id=newsletter_id)
+    drafts = nl.plaintextdraft_set.order_by('-created')
+    editions = nl.edition_set.order_by('-created')
+
+    return render(request, 'newsletters/dashboard.html', {
+        'newsletter': nl,
+        'drafts': drafts,
+        'editions': editions,
+        'active_subscriber_count': nl.subscription_set.filter(state='+').count(),
+        'bounced_subscriber_count': nl.subscription_set.filter(state='B').count(),
+        'unsubscribed_subscriber_count': nl.subscription_set.filter(Q(state='U')|Q(state='A')).count(),
+        'pending_subscriber_count': nl.subscription_set.filter(Q(state='C')).count(),
+        'subscribe_url': settings.URL_PREFIX+reverse('newsletters:list_info', args=(nl.id,)),
+    })
 
 
 def list_unsubscribe(request, token):
@@ -52,21 +88,47 @@ def list_change_subscription(request, token):
 
     saved = False
     if request.method == 'POST':
-        form = ChangeSubscriptionForm(instance=subscription.subscriber, data=request.POST)
+        form = ChangeSubscriptionForm(instance=subscription, data=request.POST)
         if form.is_valid():
             form.save()
             saved = True
     else:
-        form = ChangeSubscriptionForm(instance=subscription.subscriber)
+        form = ChangeSubscriptionForm(instance=subscription)
 
     return render(request, 'newsletters/change_subscription.html', {'form': form,
                                                                     'token': msg.bounce_token.hex,
                                                                     'saved': saved})
 
 
-def list_info(request, id):
-    nl = Newsletter.objects.get(id=id)
-    return render(request, 'newsletters/list_info.html', {'newsletter': nl})
+def subscribe_to_newsletter(name, email_address, nl):
+    s, created = Subscription.objects.get_or_create(email_address=email_address,
+                                newsletter=nl, defaults={'name': name, 'state': 'C',})
+    if not created:
+        if s.state == '+':
+            raise Exception('Sie haben den Newsletter bereits abonniert.')
+        else:
+            s.state = 'C'
+            s.save()
+    return True
+
+
+
+def list_info(request, newsletter_id):
+    nl = Newsletter.objects.get(id=newsletter_id)
+
+    if request.method == 'POST':
+        form = SubscribeForm(data=request.POST)
+        if form.is_valid():
+            try:
+                subscribe_to_newsletter(form.cleaned_data['email_address'], form.cleaned_data['email_address'], nl)
+                return render(request, 'newsletters/subscribe_optin_message.html', {'newsletter': nl})
+            except Exception as ex:
+                return render(request, 'newsletters/message.html',
+                              {'newsletter': nl, 'result': str(ex)})
+    else:
+        form = SubscribeForm()
+
+    return render(request, 'newsletters/list_info.html', {'newsletter': nl, 'subscribe_form': form})
 
 
 class ImportSubscribers(View):
@@ -89,10 +151,11 @@ class ImportSubscribers(View):
             if len(line) < 5: continue
             out += '<li>Email "' + line[3] + '" ...'
             try:
-                s, created = Subscriber.objects.get_or_create(name=line[4], email_address=line[3])
-                su, created = Subscription.objects.get_or_create(subscriber=s, newsletter=nl, confirmed=datetime.now())
-                su.state = '+'
-                su.save()
+                s, created = Subscription.objects.get_or_create(email_address=line[3],
+                                                              newsletter=nl,
+                                            defaults={'name': line[4], 'confirmed': datetime.now() })
+                s.state = '+'
+                s.save()
                 out += "ok"
             except IntegrityError as ex:
                 out += str(ex)
@@ -115,6 +178,7 @@ class PlaintextDraftEditor(View):
 
         if 'save' in request.POST:
             if 'mail_subject' in request.POST: draft.mail_subject = request.POST['mail_subject']
+            if 'mail_plain_abstract' in request.POST: draft.mail_plain_abstract = request.POST['mail_plain_abstract']
             if 'mail_plain_body' in request.POST: draft.mail_plain_body = request.POST['mail_plain_body']
             if 'html_template' in request.POST: draft.html_template = request.POST['html_template']
             draft.save()
@@ -130,10 +194,9 @@ class PlaintextDraftEditor(View):
             ed.save()
             response['success'] = True
             response['edition_id'] = ed.id
-            response['edition_url'] = reverse('newsletters:edition', args=[ed.id])
+            response['edition_url'] = reverse('nleditor:edition', args=[ed.id])
 
         return JsonResponse(response)
-
 
 
 class EditionView(View):

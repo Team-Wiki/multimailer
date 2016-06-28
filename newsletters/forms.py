@@ -1,5 +1,5 @@
 from django import forms
-from newsletters.models import Newsletter, Subscriber
+from newsletters.models import Newsletter, Subscription
 
 
 class CreateDraftForm(forms.Form):
@@ -11,9 +11,14 @@ class CreateDraftForm(forms.Form):
         #self.fields['owner_group'].queryset = Group.objects.filter(user=session_user).order_by('name')
 
 
+class SubscribeForm(forms.Form):
+    name = forms.CharField(label='Ihr Name (optional)', required=False)
+    email_address = forms.EmailField(label='Ihre E-Mail-Adresse')
+
+
 class ChangeSubscriptionForm(forms.ModelForm):
     class Meta:
-        model = Subscriber
+        model = Subscription
         fields = ['name', 'email_address']
 
 

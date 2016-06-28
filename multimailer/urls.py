@@ -18,6 +18,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^admin/newsletter-editor/', include('newsletters.urls', namespace='newsletters')),
+    url(r'^admin/newsletter-editor/', include('newsletters.admin_urls', namespace='nleditor')),
     url(r'^admin/', admin.site.urls),
+    url(r'^', include('newsletters.urls', namespace='newsletters')),
 ]

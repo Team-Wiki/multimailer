@@ -1,25 +1,46 @@
+{% extends 'newsletters/header.html' %}
+{% block content_title %}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script src="/static/newsletters/helper.js"></script>
+<button id="preview" class="btn btn-primary">Preview</button>
+<button id="create" class="btn btn-success">Create</button>
+  <a href="{% url 'admin:newsletters_plaintextdraft_change' draft.id %}" class="btn btn-default">Details</a>
+
+{% endblock %}
+{% block content %}
+
 
 <textarea id="plain_abstract" style="width:100%;height:200px;">{{ draft.mail_plain_abstract }}</textarea>
 
 <textarea id="plain_body" style="width:100%;height:500px;">{{ draft.mail_plain_body }}</textarea>
-
-<button id="preview">Preview</button>
-<button id="create">Create</button>
 
 
 <script>
     var draftId = {{ draft.id }};
     $("#create").click(function(){
         $.post("/admin/newsletter-editor/draft/"+draftId+"/", {
+            mail_plain_abstract: $("#plain_abstract").val(),
+            mail_plain_body: $("#plain_body").val(),
+            save: "true",
             create_edition: "true"
         }, function(result) {
             console.log(result);
+            location.href=result.edition_url;
         });
     });
+    $("#preview").click(function() {
+        $.post("/admin/newsletter-editor/draft/"+draftId+"/", {
+            mail_plain_abstract: $("#plain_abstract").val(),
+            mail_plain_body: $("#plain_body").val(),
+            save: "true",
+            preview: "true"
+        }, function(result) {
+            var prev = result.preview_html;
+            var wnd = window.open("about:blank","","width=800,height=800");
+            wnd.document.write(prev);
+        });
 
+    })
 
 
 </script>
+{% endblock %}

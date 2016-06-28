@@ -66,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'newsletters.views.newsletter_menu_cp'
             ],
         },
     },
@@ -125,4 +126,4 @@ STATIC_URL = '/static/'
 STATIC_ROOT = 'static'
 
 URL_PREFIX = 'http://ugbtemp.teamwiki.net'
-
+BOUNCE_ADDR_HOST = 'bounces.ugbtemp.teamwiki.net'
