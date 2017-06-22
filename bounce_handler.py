@@ -41,13 +41,13 @@ class CustomSMTPServer(smtpd.SMTPServer):
                 msg.save()
                 msg.subscription.state = 'B'
                 msg.subscription.save()
-                print("OK, handled bounce for "+str(msg.subscription.subscriber))
+                print("OK, handled bounce for "+str(msg.subscription))
             elif local_parts[0] == 'unsubscribe':
                 msg.subscription.state = 'U'
                 msg.subscription.save()
                 msg.bounce_message = peer[0] + "\n" + mailfrom + "\n" + data
                 msg.save()
-                print("OK, handled mail unsubscribe for " + str(msg.subscription.subscriber))
+                print("OK, handled mail unsubscribe for " + str(msg.subscription))
             else:
                 print("Ignoring message to "+rcpttos[0])
         except BaseException as ex:
