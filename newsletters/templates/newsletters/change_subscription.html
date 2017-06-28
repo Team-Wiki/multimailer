@@ -1,0 +1,16 @@
+{% extends 'newsletters/frontend.html' %}
+{% block content %}
+
+{% if saved %}
+<h3>Änderungen gespeichert</h3>
+{% endif %}
+
+    <form action="{% url 'newsletters:list_change_subscription' token %}" method="post" class="ui form">
+    {% csrf_token %}
+      <table class="table">
+    {{ form }}
+</table>
+    <button class="ui button" type="submit">Submit</button>
+    </form>
+
+{% endblock %}

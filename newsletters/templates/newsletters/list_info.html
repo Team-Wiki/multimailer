@@ -1,0 +1,45 @@
+{% extends 'newsletters/frontend.html' %}
+{% block pre_content %}
+<style>
+.headertron {
+    padding-top: 30px; padding-bottom: 30px;
+    margin-top: -20px;
+    background: #bbb;
+}
+
+.headertron h2{
+    margin: 0;
+}
+.headertron p{ padding: 0; margin: 4px 0 0; }
+
+</style>
+
+  <div class="headertron" style="background-color: #00d6c4;">
+  <div class="container">
+     <div class="pull-right buttons">
+       <a class="btn btn-default" href="#">Newsletter-Archiv</a>
+       <a class="btn btn-default" href="#">Zurück zur Homepage</a>
+     </div>
+    <h1>{{ newsletter.list_info_header }}</h1>
+    <p>{{ newsletter.list_info_description }}
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+{% load static %}
+
+  <h2>Subscribe</h2>
+
+    <form action="{% url 'newsletters:list_info' newsletter.id %}" method="post" class="form-inline">
+        {% csrf_token %}
+
+
+        {{ subscribe_form.name }}
+        {{ subscribe_form.email_address }}
+
+        <input type="submit" class="btn btn-primary" name="subscribe" value="Abonnieren">
+    </form>
+
+{% endblock %}

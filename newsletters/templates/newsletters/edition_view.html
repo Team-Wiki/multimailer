@@ -1,0 +1,29 @@
+{% extends 'newsletters/header.html' %}
+{% block content_title %}
+<h1>{{ edition.internal_name }}
+  <small></small>
+<a href="{% url 'admin:newsletters_edition_change' edition.id %}" class="btn btn-default btn-flat btn-sm">Edit</a></h1>
+{% endblock %}
+{% block content %}
+
+<p>Mail Subject: {{ edition.mail_subject }}</p>
+<p></p>
+
+<p>
+  <button id="start_send" class="btn btn-primary">Send to subscribers</button>
+  <a href="{% url 'admin:newsletters_message_changelist' %}?edition__id__exact={{ edition.id }}" class="btn btn-secondary">Show deliveries</a>
+</p>
+
+
+<script>
+    var editionId = {{ edition.id }};
+    $("#start_send").click(function() {
+        $.post("/admin/newsletter-editor/edition/"+editionId+"/", {
+            start_sending: "true"
+        }, function(result) {
+            console.log(result);
+        })
+    })
+</script>
+
+{% endblock %}

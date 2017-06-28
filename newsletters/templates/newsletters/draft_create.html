@@ -1,0 +1,11 @@
+{% extends 'newsletters/header.html' %}
+{% block content %}
+
+    <h2>Create Draft</h2>
+    <form action="{% url 'nleditor:draft_create' %}" method="post" class="ui form">
+        {% csrf_token %}
+        {{ form }}
+
+        <button class="ui button" type="submit">Submit</button>
+    </form>
+{% endblock %}

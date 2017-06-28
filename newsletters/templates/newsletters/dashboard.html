@@ -1,0 +1,172 @@
+{% extends 'newsletters/header.html' %}
+{% block content_title %}
+  <h1>{{ newsletter.name }} <small>{{ newsletter.from_name }} &lt;{{ newsletter.from_email_address }}&gt;</small></h1>
+{% endblock %}
+
+{% block content %}
+
+  <div class="box">
+    <div class="box-body">
+      <a class="btn btn-app" href="{% url 'admin:newsletters_newsletter_change' newsletter.id %}">
+        <i class="fa fa-edit"></i> Edit
+      </a>
+      <a class="btn btn-app" href="{% url 'admin:newsletters_subscription_changelist' %}?newsletter__id__exact={{ newsletter.id }}">
+        <span class="badge bg-purple">{{ active_subscriber_count }}</span>
+        <i class="fa fa-users"></i> Subscribers
+      </a>
+      <a class="btn btn-app" href="{% url 'nleditor:import_subscribers' newsletter.id %}">
+        <i class="fa fa-plus"></i> Import
+      </a>
+    </div>
+    <!-- /.box-body -->
+  </div>
+
+  <!-- Small boxes (Stat box) -->
+  <div class="row">
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-aqua">
+        <div class="inner">
+          <h3>{{ pending_subscriber_count }}</h3>
+
+          <p>Pending Confirmation</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-person-add"></i>
+        </div>
+        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-green">
+        <div class="inner">
+          <h3>{{ active_subscriber_count }}</h3>
+
+          <p>Active</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-stats-bars"></i>
+        </div>
+        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-yellow">
+        <div class="inner">
+          <h3>{{ bounced_subscriber_count }}</h3>
+
+          <p>Disabled for Bounces</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-alert-circled"></i>
+        </div>
+        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-red">
+        <div class="inner">
+          <h3>{{ unsubscribed_subscriber_count }}</h3>
+
+          <p>Unsubscribed</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-trash-a"></i>
+        </div>
+        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+  </div>
+  <!-- /.row -->
+
+
+  <div class="row">
+  <div class="col-md-6">
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Entwürfe</h3>
+                <div class="box-tools">
+              <a href="{% url 'nleditor:draft_create' %}?newsletter_id={{ newsletter.id }}" class="btn btn-sm btn-info btn-flat">Neuen Entwurf anlegen</a>
+                  </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body no-padding">
+              <table class="table table-striped">
+                <tr>
+                  <th>Internal Name</th>
+                  <th>Subject</th>
+                  <th>Created</th>
+                </tr>
+                {% for draft in drafts %}
+
+                <tr>
+                  <td><a href="{% url 'nleditor:draft_edit' draft.id %}">{{ draft.internal_name }}</a></td>
+                  <td><a href="{% url 'nleditor:draft_edit' draft.id %}">{{ draft.mail_subject }}</a></td>
+                  <td><a href="{% url 'nleditor:draft_edit' draft.id %}">{{ draft.created }}</a></td>
+
+                </tr>
+
+              {% endfor %}
+              </table>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+</div>
+  <div class="col-md-6">
+
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Ausgaben</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body no-padding">
+              <table class="table table-striped">
+                <tr>
+                  <th>Internal Name</th>
+                  <th>Date</th>
+                  <th colspan="2">Status</th>
+                </tr>
+                {% for edition in editions %}
+
+                <tr>
+                  <td><a href="{% url 'nleditor:edition' edition.id %}">{{ edition.internal_name }}</a></td>
+                  <td><a href="{% url 'nleditor:edition' edition.id %}">{{ edition.display_date }}</a></td>
+                  <td style="width:120px;">
+                    <div class="progress progress-xs">
+                      <div class="progress-bar progress-bar-danger" style="width: 55%"></div>
+                    </div>
+                  </td>
+                  <td style="width:70px;"><span class="badge bg-red">55%</span></td>
+                </tr>
+
+              {% endfor %}
+              </table>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+  </div>
+  </div>
+
+
+
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Information</h3>
+              </div>
+          <div class="box-body">
+            <p>Subscription Form URL:</p>
+            <p><code><a href="{{ subscribe_url }}">{{ subscribe_url }}</a></code></p>
+            </div>
+          </div>
+
+
+{% endblock %}
