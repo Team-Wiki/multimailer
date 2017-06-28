@@ -20,10 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'pp)+cs1+aoqrlgpcuev2)k$daw+oh63t-j)=*w^%j)^v$e_um$'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = 'asdfasdfsdf'
 
 ALLOWED_HOSTS = []
 
@@ -125,5 +122,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static'
 
-URL_PREFIX = 'http://ugbtemp.teamwiki.net'
-BOUNCE_ADDR_HOST = 'bounces.ugbtemp.teamwiki.net'
+URL_PREFIX = 'http://mailer.example.com'
+BOUNCE_ADDR_HOST = 'mailer.example.com'
+
+
+# Pull in the local changes.
+try:
+    from multimailer.local_settings import *
+except ImportError:
+    pass
+
+
+
